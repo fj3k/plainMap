@@ -1,0 +1,48 @@
+{
+    "Info": {
+        "Name": "Example map data",
+        "Description": "This is just some example data."
+    },
+    "Maps": {
+        "Map Name": {
+            "Bounds": {
+                "north": 123,
+                "south": 123,
+                "east": 123,
+                "west": 123
+            }
+        }
+    },
+    "Common": {
+        "Always shown": {
+            "Label": "Major Centre",
+            "Type": "City",
+            "Location": {"lat": 123, "lng": 123},
+            "Reference": true
+        },
+        "Only if referenced": {
+            "Label": "Smallville",
+            "Type": "Village",
+            "Loation": {"lat": 123, "lng": 123}
+        }
+    },
+    "Sections": {
+        "Page 1": {
+            "Subsections": {
+                "1": [
+                    "Always shown",
+                    {
+                        "Label": "A far off land",
+                        "Type": "Region",
+                        "Bounds": {"north": 123, "south": 123, "east": 123, "west": 123}
+                    }
+                ]
+            }
+        },
+        "Page 2": {
+            "Subsections": {
+                "3": ["Only if referenced"]
+            }
+        }
+    }
+}

@@ -34,7 +34,7 @@ type Data = {
 }
 
 /**
- * 
+ * Handles the drawing and updating the map content.
  */
 export class MapContent {
     map: MapWrapper;
@@ -71,7 +71,7 @@ export class MapContent {
 
     /**
      * Takes a JSON string and turns it into workable data.
-     * @param json 
+     * @param json
      */
     parseResponse(json: string) {
         json = json.replace(/\/\*.*?\*\//g, '');//Get rid of comments.
@@ -112,10 +112,10 @@ export class MapContent {
 
         for (var x of Object.keys(this.data.Sections)) {
             if (/-|:/.test(x)) this.disableRange = true;
-        
+
             for (var y of Object.keys(this.data.Sections[x].Subsections)) {
                 if (/-|:/.test(y)) this.disableRange = true;
-        
+
                 for (var z in this.data.Sections[x].Subsections[y]) {
                     var deets: JSONLocation;
                     if (Mike.isStr(this.data.Sections[x].Subsections[y][z])) {
@@ -151,8 +151,8 @@ export class MapContent {
     }
 
     /**
-     * 
-     * @returns 
+     * Run once the content and map are both ready.
+     * @returns
      */
     handleContent() {
         //Wait until have both map and data.
@@ -179,7 +179,7 @@ export class MapContent {
     }
 
     /**
-     * 
+     * Registers the key handlers.
      */
     registerKeys() {
         var me = this;
@@ -190,8 +190,8 @@ export class MapContent {
     }
 
     /**
-     * 
-     * @param event 
+     * Handles map clicks
+     * @param event
      */
     clickMap(event: any) {
         var pos = event.latLng;
@@ -199,9 +199,9 @@ export class MapContent {
     }
 
     /**
-     * 
-     * @param str 
-     * @returns 
+     * Parse a range string into a list of sections and subsections.
+     * @param str
+     * @returns
      */
     parseRange(str: string): {[index: string]: string[]} {
         var selectedSections: {[index: string]: string[]} = {}
@@ -213,12 +213,12 @@ export class MapContent {
           }
           return selectedSections;
         }
-      
+
         //Check for invalid ranges
         if (/-.*-|:[^-]*:|^[^:]*-.*:/.test(str)) return selectedSections;
-      
+
         var parts = str.split(/-/);
-        
+
         if (parts.length == 1) {
           //Acts 10:1
           var secs = parts[0].split(/:/);
@@ -227,13 +227,13 @@ export class MapContent {
           }
           return selectedSections;
         }
-      
+
         if (!/:/.test(parts[0])) {
           //Acts 10-11
           if (/\d+$/.test(parts[0]) && /^\d+$/.test(parts[1])) parts[1] = parts[0].replace(/\d+$/, parts[1]);
           //Acts 10-Acts 11
           if (!this.data.Sections[parts[0]] || !this.data.Sections[parts[1]]) return selectedSections;
-      
+
           var include = false;
           for (var x of (Object.keys(this.data.Sections))) {
             if (x == parts[0]) {
@@ -247,12 +247,12 @@ export class MapContent {
               continue;
             }
             selectedSections[x] = Object.keys(this.data.Sections[x].Subsections);
-      
+
             if (!include) break;//Found the end; quit loop.
           }
           return selectedSections;
         }
-      
+
         var secsS = parts[0].split(/:/);
         var secsE;
         if (/:/.test(parts[1])) {
@@ -261,12 +261,12 @@ export class MapContent {
           //Acts 10:1-2
           secsE = [secsS[0], parts[1]];
         }
-      
+
         //Acts 10:1-11:2
         if (/\d+$/.test(secsS[0]) && /^\d+$/.test(secsE[0])) secsE[0] = secsS[0].replace(/\d+$/, secsE[0]);
         //Acts 10:1-Acts 11:2
         if (!this.data.Sections[secsS[0]] || !this.data.Sections[secsE[0]]) return selectedSections;
-      
+
         include = false;
         for (var x of (Object.keys(this.data.Sections))) {
           var checkStart = false, checkEnd = false;
@@ -287,7 +287,7 @@ export class MapContent {
             //Haven't found start; keep looking
             continue;
           }
-      
+
           var subsecs = Object.keys(this.data.Sections[x].Subsections);
           selectedSections[x] = [];
           if (!checkStart && !checkEnd || (checkStart && !checkEnd && subsecs[0] == secsS[1]) || (checkEnd && !checkStart && subsecs[subsecs.length-1] == secsE[1])) {
@@ -297,7 +297,7 @@ export class MapContent {
             for (var y of subsecs) {
               if (y == secsS[1]) foundStart = true;
               if (!foundStart) continue;
-      
+
               selectedSections[x].push(y);
               if (checkEnd && y == secsE[1]) break;
             }
@@ -307,27 +307,27 @@ export class MapContent {
               if (y == secsE[1]) break;
             }
           }
-      
+
           if (!include) break;//Found the end; quit loop.
         }
         return selectedSections;
     }
 
     /**
-     * 
-     * @param selected 
+     * Show the selected map elements.
+     * @param selected
      */
     showPoints(selected: string) {
         var h = Mike.get("header");
         if (h) h.innerText = selected;
         this.currentPage = selected;
-      
+
         var selectedSections =  this.parseRange(selected);
         var requestedMap = null;
         if (Object.keys(selectedSections).length == 1) {
           requestedMap = this.data.Sections[Object.keys(selectedSections)[0]].Map
         }
-      
+
         for (var r of Object.keys(this.data.Common)) {
             var ref = this.data.Common[r] as Location;
             if (!ref.details.Reference) continue;
@@ -335,7 +335,7 @@ export class MapContent {
             ref.draw();
             ref.container.addClass('reference');
         }
-      
+
         var dontBlank = [];
         for (var x of Object.keys(selectedSections)) {
             for (var y of selectedSections[x]) {
@@ -349,7 +349,7 @@ export class MapContent {
         for (var x of Object.keys(this.data.Sections)) {
             for (var y of Object.keys(this.data.Sections[x].Subsections)) {
                 if (selectedSections[x] && selectedSections[x].indexOf(y) !== -1) continue;//Skip blanking these objects.
-        
+
                 for (var z of this.data.Sections[x].Subsections[y]) {
                     var point: Location;
                     if (Mike.isStr(z)) {
@@ -359,13 +359,13 @@ export class MapContent {
                         point = (z as any) as Location;
                     }
                     if (!point) continue;
-        
+
                     if (!point.details.Reference) point.hide();
                     if (point.details.Reference) point.container.addClass('reference');
                 }
             }
         }
-      
+
         for (var x of Object.keys(selectedSections)) {
             for (var y of selectedSections[x]) {
                 for (var z of this.data.Sections[x].Subsections[y]) {
@@ -376,7 +376,7 @@ export class MapContent {
                         point = (z as any) as Location;
                     }
                     if (!point) continue;
-            
+
                     if (!point.details.OutsideBounds) {
                         var b = point.getBounds();
                         shownPoints = shownPoints.concat(b);
@@ -394,18 +394,18 @@ export class MapContent {
                 }
             }
         }
-      
+
         this.zoomMap(requestedMap, shownPoints);
     }
 
     /**
-     * 
-     * @param selected 
+     * Show all maps, and plot objects drawn
+     * @param selected
      */
     showMaps(selected: string | null) {
         var extent: {north: number | null, south: number | null, east: number | null, west: number | null} = {north: null, south: null, east: null, west: null};
         var drawn = [];
-    
+
         //Draw map outlines
         var mapNames = Object.keys(this.data.Maps);
         var me = this;
@@ -418,14 +418,14 @@ export class MapContent {
         for (var m of mapNames) {
             var mapColour = 'rgba(' + (255 - i++ * (128 / mapNames.length)) + ',0,0,1)';
             this.outlineMap(this.data.Maps[m].Bounds, mapColour)
-    
+
             var ne = this.data.Maps[m].Bounds.getNorthEast();
             var sw = this.data.Maps[m].Bounds.getSouthWest();
             if (extent.north === null || ne.lat() > extent.north) extent.north = ne.lat();
             if (extent.south === null || sw.lat() < extent.south) extent.south = sw.lat();
             if (extent.east === null || ne.lng() > extent.east) extent.east = ne.lng();
             if (extent.west === null || sw.lng() < extent.west) extent.west = sw.lng();
-    
+
             var refPoints = this.data.Maps[m].ReferencePoints;
             if (refPoints) {
                 for (var z of refPoints) {
@@ -469,7 +469,7 @@ export class MapContent {
                 }
             }
         }
-    
+
         var sections = Object.keys(this.data.Sections);
         i = 0;
         for (var x of sections) {
@@ -484,7 +484,7 @@ export class MapContent {
                         point = (z2 as any) as Location;
                     }
                     if (!point) continue;
-    
+
                     if (point.details.Bounds) {
                         this.outlineMap(point.details.Bounds, mapColour, 1)
                         var neB = point.details.Bounds.getNorthEast();
@@ -515,11 +515,11 @@ export class MapContent {
                 }
             }
         }
-    
-        //Draw common this.data
+
+        //Draw common locations
         for (var r of Object.keys(this.data.Common)) {
             if (drawn.indexOf(r) >= 0) continue;
-    
+
             var b = (this.data.Common[r] as Location).details.Bounds, l = (this.data.Common[r] as Location).details.Location;
             if (b) {
                 this.outlineMap(b, 'rgba(0,128,0,0.5)', 1)
@@ -549,14 +549,14 @@ export class MapContent {
                 if (extent.west === null || l.lng() < extent.west) extent.west = l.lng();
             }
         }
-    
+
         this.map.fitBounds(extent as JSONBounds);
     }
 
     /**
-     * 
-     * @param requestedMap 
-     * @param shownPoints 
+     * Zoom to a specified map; or a map which fit the points.
+     * @param requestedMap
+     * @param shownPoints
      */
     zoomMap(requestedMap: string | null | undefined, shownPoints: LatLng[]) {
         var useBounds = null;
@@ -576,7 +576,7 @@ export class MapContent {
 
         if (useBounds) {
             this.map.fitBounds(useBounds);
-      
+
             if (Mike.getParam('showmaps')) {
                 if (this.highlightedMap) this.map.remove(this.highlightedMap);
                 this.highlightedMap = this.outlineMap(useBounds, colour, 2, 2);
@@ -585,9 +585,9 @@ export class MapContent {
     }
 
     /**
-     * 
-     * @param positions 
-     * @returns 
+     * Find the smallest map which fits the points specified.
+     * @param positions
+     * @returns
      */
     findMap(positions: LatLng[]) {
         if (!this.data.Maps || Object.keys(this.data.Maps).length == 0) return null;
@@ -619,12 +619,12 @@ export class MapContent {
 
     //TODO Move to location.ts
     /**
-     * 
-     * @param m 
-     * @param mapColour 
-     * @param strokeWeight 
-     * @param zIndex 
-     * @returns 
+     * Draw a box around bounds.
+     * @param m
+     * @param mapColour
+     * @param strokeWeight
+     * @param zIndex
+     * @returns
      */
     outlineMap(m: Bounds, mapColour: string, strokeWeight?: number, zIndex?: number) {
         strokeWeight = strokeWeight ? strokeWeight : 2;
@@ -641,8 +641,8 @@ export class MapContent {
     }
 
     /**
-     * 
-     * @returns 
+     * Go to the next page
+     * @returns
      */
     next() {
         if (!this.currentPage) return this.showPoints(this.data.Pages[0]);
@@ -652,8 +652,8 @@ export class MapContent {
     }
 
     /**
-     * 
-     * @returns 
+     * Go to the previous page
+     * @returns
      */
     prev() {
         if (!this.currentPage) return this.showPoints(this.data.Pages[this.data.Pages.length-1]);
@@ -663,14 +663,14 @@ export class MapContent {
     }
 
     /**
-     * 
+     * Go to the first page
      */
     first() {
         this.showPoints(this.data.Pages[0]);
     }
 
     /**
-     * 
+     * Go to the last page
      */
     last() {
         this.showPoints(this.data.Pages[this.data.Pages.length-1]);

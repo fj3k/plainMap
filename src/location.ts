@@ -21,6 +21,9 @@ export type JSONLocation = {
     Class?: string
 }
 
+/**
+ * Generic class to handle the drawing of a specific location
+ */
 export abstract class Location {
     details: JSONLocation;
     map: MapWrapper;
@@ -32,6 +35,12 @@ export abstract class Location {
         this.container = new MapContainer();
     }
 
+    /**
+     * Factory to create a specific class for a given location.
+     * @param details
+     * @param map
+     * @returns
+     */
     static getLocationObject(details: JSONLocation, map: MapWrapper): Location {
         switch (details.Type) {
             case PointType.Point: return new PointLocation(details, map);
@@ -43,24 +52,46 @@ export abstract class Location {
         return new PointLocation(details, map);
     }
 
+    /**
+     * Draws the location
+     */
     abstract draw(): void;
 
+    /**
+     * Gets the bounds (sw, ne points) of the location
+     */
     abstract getBounds(): LatLng[];
 
+    /**
+     * Show the location
+     */
     show() {
         this.map.add(this.container);
     }
 
+    /**
+     * Hides the location
+     */
     hide() {
         this.map.remove(this.container);
     }
 
+    /**
+     * Generic code to add a point to the map (given there is a lot of overlap between types)
+     * @param map
+     * @param coords
+     * @param type
+     * @param colour
+     * @param text
+     * @param clas
+     * @returns
+     */
     static addPoint(map: MapWrapper, coords: LatLng, type?: PointType, colour?: string, text?: string, clas?: string) {
         if (!type) type = PointType.Point;
         if (!colour) colour = '#fff';
         if (!text) text = ' ';
         if (type === PointType.Sea) type = PointType.Region;
-      
+
         var container = new MapContainer();
         var label = new MapLabel({
             position: coords,
@@ -73,7 +104,7 @@ export abstract class Location {
         map.add(label);
         if (clas) label.addClass(clas);
         container.items.push(label);
-      
+
         if (type != PointType.Region) {
             var marker = new Marker({
                 position: coords,
@@ -90,19 +121,36 @@ export abstract class Location {
             map.add(marker);
             container.items.push(marker);
         }
-      
+
         return container;
     }
 }
 
+/**
+ * Handles an unknown location
+ */
 export class UnknownLocation extends Location {
+    /**
+     * Draws the location
+     */
     draw() {}
+
+    /**
+     * Gets the bounds (sw, ne points) of an unknown location
+     * (No bounds; as there's no location)
+     */
     getBounds() {
         return [];
     }
 }
 
+/**
+ * Handles a point location
+ */
 class PointLocation extends Location {
+    /**
+     * Draws the point
+     */
     draw() {
         if (this.container.items.length > 0) {
             this.map.add(this.container);
@@ -113,6 +161,10 @@ class PointLocation extends Location {
         this.container = Location.addPoint(this.map, this.details.Location, this.details.Type, '#00f', this.details.Label, this.details.Class);
     }
 
+    /**
+     * Gets the bounds (sw, ne points) of the point
+     * Only returns one point; as the sw and ne points are identical
+     */
     getBounds() {
         var b = [];
         if (this.details.Location) b.push(this.details.Location);
@@ -120,7 +172,13 @@ class PointLocation extends Location {
     }
 }
 
+/**
+ * Handles a region location
+ */
 class RegionLocation extends Location {
+    /**
+     * Draws the region
+     */
     draw() {
         if (this.container.items.length > 0) {
             this.map.add(this.container);
@@ -138,6 +196,9 @@ class RegionLocation extends Location {
         this.container = Location.addPoint(this.map, point, this.details.Type, '#00f', this.details.Label, this.details.Class);
     }
 
+    /**
+     * Gets the bounds (sw, ne points) of the location
+     */
     getBounds() {
         var b = [];
         if (this.details.Location) {
@@ -149,7 +210,13 @@ class RegionLocation extends Location {
     }
 }
 
+/**
+ * Handles a line
+ */
 class LineLocation extends Location {
+    /**
+     * Draws the line
+     */
     draw() {
         if (this.container.items.length > 0) {
             this.map.add(this.container);
@@ -176,10 +243,25 @@ class LineLocation extends Location {
         this.map.add(this.container);
     }
 
+    /**
+     * Gets the bounds (sw, ne points) of the location
+     */
     getBounds() {
-        return [];
+        var b = [];
+        if (this.details.Poly) {
+            var bounds = this.map.boundsFromLatLngList(this.details.Poly);
+            if (bounds) b.push(bounds.getNorthEast(), bounds.getSouthWest());
+        }
+        return b;
     }
 }
 
+/**
+ * Handles a Mountain point
+ */
 class MountainLocation extends PointLocation {}
+
+/**
+ * Handles a sea region
+ */
 class SeaLocation extends RegionLocation {}

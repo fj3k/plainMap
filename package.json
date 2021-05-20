@@ -1,0 +1,20 @@
+{
+  "name": "plain",
+  "version": "1.0.0",
+  "description": "A plain map, that things can be plotted on.",
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc && cp -r ./public/* ./dist/",
+    "deploy": "scp -r dist/* [[dest]]",
+    "check": "tsc --noEmit"
+  },
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "@types/google.maps": "^3.44.4",
+    "@types/node": "^15.3.0"
+  },
+  "dependencies": {
+    "typescript": "^4.2.4"
+  }
+}

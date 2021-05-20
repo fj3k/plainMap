@@ -1,0 +1,99 @@
+#header {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 5vh;
+  line-height: 5vh;
+  font-size: 4vh;
+  font-family: 'Oxygen', Roboto, Arial, sans-serif;
+  background-color: #888;
+  color: white;
+  text-align: center;
+}
+#footer {
+  position: absolute;
+  width: 40ch;
+  height: 1rem;
+  line-height: 1rem;
+  font-size: 0.8rem;
+  font-family: 'Oxygen', Roboto, Arial, sans-serif;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  margin: auto;
+  text-align: center;
+}
+#you {
+  position: absolute;
+  margin: 20px;
+  margin-top: calc(5vh + 20px);
+  width: 4rem;
+  height: 4rem;
+  text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
+  text-align: center;
+  font-size: 1rem;
+  font-family: 'Oxygen', Roboto, Arial, sans-serif;
+  color: black;
+}
+#youText {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+}
+#youArr {
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  line-height: 3.5rem;
+  font-size: 3rem;
+  font-weight: bold;
+  font-family: 'Source Sans Pro', sans-serif;
+  color: #090;
+}
+#youDist {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  font-size: 0.75rem;
+}
+#map {
+  position: absolute;
+  top: 5vh;
+  left: 0;
+  right: 0;
+  bottom: 0;
+}
+.mapLabel, .markerLabel, .arrowLabel, .infoLabel {
+  position: absolute;
+  color: #000;
+  text-shadow: -1px -1px 0 #fff, 1px -1px 0 #fff, -1px 1px 0 #fff, 1px 1px 0 #fff;
+  font-size: 16px;
+  font-family: 'Oxygen', Roboto, Arial, sans-serif;
+  text-align: left;
+  width: 40rem;
+}
+.mapLabel.reference, .markerLabel.reference, .arrowLabel.reference, .infoLabel.reference {
+  color: #888;
+}
+.mapLabel.major {
+  font-size: 20px;
+}
+.mapLabel {
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+.markerLabel {
+  transform: translate(10px, -50%);
+}
+.arrowLabel {
+  transform: translate(10px, calc(-50% + 4px));/* Arrow coords are at top of icon */
+}
+.infoLabel {
+  transform: translate(0, 10px);
+  font-size: 10px;
+}

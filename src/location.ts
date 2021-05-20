@@ -108,7 +108,7 @@ class PointLocation extends Location {
             this.map.add(this.container);
             return;
         }
-        console.log('Point draw');
+
         if (!this.details.Location) return;
         this.container = Location.addPoint(this.map, this.details.Location, this.details.Type, '#00f', this.details.Label, this.details.Class);
     }
@@ -126,7 +126,7 @@ class RegionLocation extends Location {
             this.map.add(this.container);
             return;
         }
-        console.log('Region draw');
+
         var point: LatLng | undefined;
         if (this.details.Bounds) {
             point = this.details.Bounds.getCenter();
@@ -135,7 +135,7 @@ class RegionLocation extends Location {
         }
         if (!point) return;
 
-        this.container = Location.addPoint(this.map, point, this.details.Type);
+        this.container = Location.addPoint(this.map, point, this.details.Type, '#00f', this.details.Label, this.details.Class);
     }
 
     getBounds() {
@@ -155,7 +155,7 @@ class LineLocation extends Location {
             this.map.add(this.container);
             return;
         }
-        console.log('Line draw');
+
         this.container = new MapContainer();
         var line = new Polyline({
             path: this.details.Poly,

@@ -3,6 +3,7 @@ import * as Earl from "./common/earl.js";
 import * as Mike from "./common/mike.js";
 import { KeyboardHandler } from "./key.js";
 import { JSONLocation, Location, UnknownLocation, PointType } from "./location.js";
+import { DrawMode } from "./drawMode.js";
 
 type Data = {
     Info: {
@@ -173,6 +174,8 @@ export class MapContent {
         } else {
             throw new Error('Something is terribly wrong.');
         }
+
+        if (this.drawMode) new DrawMode(this.map);
     }
 
     /**

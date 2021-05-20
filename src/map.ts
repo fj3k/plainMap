@@ -46,6 +46,14 @@ export class MapWrapper {
         this.map.fitBounds(bounds);
     }
 
+    getZoom(): number {
+        return this.map.getZoom() || 0;
+    }
+
+    getProjection() {
+        return this.map.getProjection();
+    }
+
     setMapType(mapType: MapType | undefined) {
         if (!mapType) return;
 
@@ -58,8 +66,22 @@ export class MapWrapper {
         return listenerID;
     }
 
+    listenObject(object: Mapable, what: string, callback: (event: any) => void, listenerID?: string) {
+        if (!listenerID) listenerID = newID();
+        this.eventListeners[listenerID] = google.maps.event.addListener(object, what, callback);
+        return listenerID;
+    }
+
     unlisten(listenerID: string) {
         this.eventListeners[listenerID].remove();
+    }
+
+    trigger(what: string, event: any) {
+        google.maps.event.trigger(this.map, what, event);
+    }
+
+    triggerObject(object: Mapable, what: string, event: any) {
+        google.maps.event.trigger(object, what, event);
     }
 
     add(object: Mapable) {
@@ -204,7 +226,7 @@ export class MapLabel extends google.maps.OverlayView {
     }
   }
 
-interface Mapable {
+export interface Mapable {
     setMap(map: google.maps.Map | null): void;
 }
 

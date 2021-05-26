@@ -2,11 +2,13 @@ import { Bounds, LatLng, MapContainer, MapWrapper, MapLabel, Marker, Polyline } 
 
 export enum PointType {
     Point = 'Point',
+    City = 'City',
     Mountain = 'Mountain',
     Region = 'Region',
     Sea = 'Sea',
     Line = 'Line',
-    Area = 'Area'
+    Area = 'Area',
+    Arrow = 'Arrow'
 }
 
 export type JSONLocation = {
@@ -44,10 +46,13 @@ export abstract class Location {
     static getLocationObject(details: JSONLocation, map: MapWrapper): Location {
         switch (details.Type) {
             case PointType.Point: return new PointLocation(details, map);
+            case PointType.City: return new CityLocation(details, map);
             case PointType.Mountain: return new MountainLocation(details, map);
             case PointType.Region: return new RegionLocation(details, map);
             case PointType.Sea: return new SeaLocation(details, map);
-            case PointType.Line: return new LineLocation(details, map);
+            case PointType.Line:
+            case PointType.Arrow:
+                return new LineLocation(details, map);
         }
         return new PointLocation(details, map);
     }
@@ -224,21 +229,21 @@ class LineLocation extends Location {
         }
 
         this.container = new MapContainer();
-        var line = new Polyline({
+        var props: google.maps.PolylineOptions = {
             path: this.details.Poly,
             geodesic: true,
             strokeColor: '#fff',
             strokeOpacity: 1.0,
-            strokeWeight: 4,
-        });
+            strokeWeight: 4
+        };
+        var line = new Polyline(props);
+        props.strokeWeight = 2;
+        props.strokeColor = '#00f';
+        if (this.details.Type == PointType.Arrow) props.icons = [
+            {icon: {path: google.maps.SymbolPath.FORWARD_CLOSED_ARROW}, offset: '50%'}
+        ];
         this.container.items.push(line);
-        var line = new Polyline({
-            path: this.details.Poly,
-            geodesic: true,
-            strokeColor: '#00f',
-            strokeOpacity: 1.0,
-            strokeWeight: 2,
-        });
+        var line = new Polyline(props);
         this.container.items.push(line);
         this.map.add(this.container);
     }
@@ -255,6 +260,11 @@ class LineLocation extends Location {
         return b;
     }
 }
+
+/**
+ * Handles a City point
+ */
+class CityLocation extends PointLocation {}
 
 /**
  * Handles a Mountain point

@@ -1,3 +1,11 @@
+export type MakeElement = {
+    tag: string,
+    id?: string,
+    classes?: string,
+    attributes?: {[index: string]: string},
+    children?: (MakeElement | Element | {html: string} | string | null)[]
+}
+
 /**
  * Create a DOM element or tree.
  * Usages:
@@ -18,6 +26,14 @@
  * @param args
  * @returns
  */
+export function make(tag: string): HTMLElement | null;
+export function make(tag: string, id: string | null): HTMLElement | null;
+export function make(tag: string, id: string | null, classes: string | null): HTMLElement | null;
+export function make(tag: string, id: string | null, classes: string | null, children: (Element | string | null)[]): HTMLElement | null;
+export function make(tag: string, id: string | null, attributes: {[index: string]: string}): HTMLElement | null;
+export function make(tag: string, id: string | null, attributes: {[index: string]: string}, children: (Element | string | null)[]): HTMLElement | null;
+export function make(structure: MakeElement): HTMLElement | null;
+
 export function make(...args: any[]): HTMLElement | null {
     if (args.length == 0) return null; //You give me nothing, I give you nothing.
 
@@ -42,9 +58,9 @@ export function make(...args: any[]): HTMLElement | null {
             idx++;
         } else if (typeof args[idx] === 'object' && !Array.isArray(args[idx])) {
             for (var attr in args[idx]) {
-            if (args[idx].hasOwnProperty(attr)) {
-                el.setAttribute(attr, args[idx][attr]);
-            }
+                if (args[idx].hasOwnProperty(attr)) {
+                    el.setAttribute(attr, args[idx][attr]);
+                }
             }
             idx++;
         }
@@ -55,10 +71,11 @@ export function make(...args: any[]): HTMLElement | null {
             children = [children];
         }
         for (var child of children) {
+            if (child === null) continue;
             if (isStr(child) || isNum(child)) {
-            el.appendChild(textNode(child));
+                el.appendChild(textNode(child));
             } else if (child) {
-            el.appendChild(child);
+                el.appendChild(child);
             }
         }
 
@@ -69,23 +86,24 @@ export function make(...args: any[]): HTMLElement | null {
         if (args[0].classes) el.setAttribute('class', args[0].classes);
         if (args[0].attributes && typeof args[0].attributes === 'object') {
             for (var attr in args[0].attributes) {
-            if (args[0].attributes.hasOwnProperty(attr)) {
-                el.setAttribute(attr, args[0].attributes[attr]);
-            }
+                if (args[0].attributes.hasOwnProperty(attr)) {
+                    el.setAttribute(attr, args[0].attributes[attr]);
+                }
             }
         }
         if (args[0].children && Array.isArray(args[0].children)) {
             for (var child of args[0].children) {
-            if (isStr(child) || isNum(child)) {
-                el.appendChild(textNode(child));
-            } else if (isNode(child) || isElement(child)) {
-                el.appendChild(child);
-            } else if (child.html) {
-                el.innerHTML = child.html;
-            } else if (child) {
-                var chel = createElement(child);
-                if (chel) el.appendChild(chel);
-            }
+                if (child === null) continue;
+                if (isStr(child) || isNum(child)) {
+                    el.appendChild(textNode(child));
+                } else if (isNode(child) || isElement(child)) {
+                    el.appendChild(child);
+                } else if (child.html) {
+                    el.innerHTML = child.html;
+                } else if (child) {
+                    var chel = createElement(child);
+                    if (chel) el.appendChild(chel);
+                }
             }
         }
         return el;
